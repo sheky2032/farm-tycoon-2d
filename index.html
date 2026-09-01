@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farming Tycoon - 2D Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        #game-container {
+            display: flex;
+            gap: 20px;
+            background: #34495e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #gameCanvas {
+            border: 3px solid #2c3e50;
+            background: #87CEEB;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #ui-panel {
+            width: 300px;
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 5px;
+            color: #ecf0f1;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        #resources {
+            background: #1a252f;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .resource-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #34495e;
+            font-size: 14px;
+        }
+
+        .resource-item:last-child {
+            border-bottom: none;
+        }
+
+        .resource-name {
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .resource-value {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        h2 {
+            color: #3498db;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .building-btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .building-btn:hover:not(:disabled) {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .building-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .cost-info {
+            font-size: 11px;
+            color: #bdc3c7;
+            margin-top: 3px;
+        }
+
+        #stats {
+            background: #1a252f;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .stat-item {
+            padding: 5px 0;
+            color: #ecf0f1;
+        }
+
+        .stat-label {
+            color: #95a5a6;
+        }
+
+        .stat-value {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        #controls {
+            background: #1a252f;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .control-btn:hover {
+            background: #c0392b;
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1024px) {
+            #game-container {
+                flex-direction: column;
+            }
+
+            #ui-panel {
+                width: 100%;
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div id="ui-panel">
+            <h2>💰 Resources</h2>
+            <div id="resources">
+                <div class="resource-item">
+                    <span class="resource-name">🌾 Wheat</span>
+                    <span class="resource-value" id="wheat">0</span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-name">🪵 Wood</span>
+                    <span class="resource-value" id="wood">0</span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-name">💰 Gold</span>
+                    <span class="resource-value" id="gold">100</span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-name">🪨 Stone</span>
+                    <span class="resource-value" id="stone">0</span>
+                </div>
+            </div>
+
+            <h2>🏗️ Build</h2>
+            <button class="building-btn" onclick="game.buyBuilding('farm')">
+                🌾 Farm
+                <div class="cost-info">Cost: 50 Gold</div>
+            </button>
+            <button class="building-btn" onclick="game.buyBuilding('lumbermill')">
+                🪵 Lumber Mill
+                <div class="cost-info">Cost: 75 Gold</div>
+            </button>
+            <button class="building-btn" onclick="game.buyBuilding('quarry')">
+                🪨 Quarry
+                <div class="cost-info">Cost: 100 Gold</div>
+            </button>
+            <button class="building-btn" onclick="game.buyBuilding('house')">
+                🏠 House
+                <div class="cost-info">Cost: 200 Gold</div>
+            </button>
+
+            <h2>📊 Stats</h2>
+            <div id="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Buildings:</span>
+                    <span class="stat-value" id="stat-buildings">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Production/sec:</span>
+                    <span class="stat-value" id="stat-production">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Net Income:</span>
+                    <span class="stat-value" id="stat-income">0</span>
+                </div>
+            </div>
+
+            <div id="controls">
+                <button class="control-btn" onclick="game.saveGame()">💾 Save Game</button>
+                <button class="control-btn" onclick="game.loadGame()">📂 Load Game</button>
+                <button class="control-btn" onclick="game.resetGame()">🔄 Reset Game</button>
+                <p class="info-text">Click on the map to place buildings. Buildings auto-produce resources!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
